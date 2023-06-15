@@ -1,17 +1,19 @@
 #!/bin/bash
 
-HOST_MLCOMMONS_ROOT_DIR=$HOME/mlcommons/inference	# path to mlcommons/inference
-DLRM_DIR=$HOME/mlcommons/dlrm				# path to DLRM	
-MODEL_DIR=$HOME/mlcommons/model-terabyte		# path to model folder
-DATA_DIR=$HOME/mlcommons/data-terabyte		# path to data folder
+HOST_MLCOMMONS_ROOT_DIR=/scratch/gpfs/hm2595/mlperf/mlperf-inference    # path to mlcommons/inference
+DLRM_DIR=/scratch/gpfs/hm2595/mlperf/mlperf-inference/recommendation                # path to DLRM    
+MODEL_DIR=/scratch/gpfs/hm2595/mlperf/mlperf-inference/recommendation/model        # path to model folder
+DATA_DIR=/scratch/gpfs/hm2595/mlperf/mlperf-inference/recommendation/dlrm/pytorch/tools/fake_criteo/        # path to data folder
 
-docker run -it \
--v $DLRM_DIR:/root/dlrm \
--v $MODEL_DIR:/root/model \
--v $DATA_DIR:/root/data \
--v $HOST_MLCOMMONS_ROOT_DIR:/root/mlcommons \
--e DATA_DIR=/root/data \
--e MODEL_DIR=/root/model \
--e DLRM_DIR=/root/dlrm \
-dlrm-cpu 
-
+# Using singularity shell for an interactive session
+# singularity shell \
+singularity shell \
+--bind $DLRM_DIR:/root/dlrm \
+--bind $MODEL_DIR:/root/model \
+--bind $DATA_DIR:/root/data \
+--bind $HOST_MLCOMMONS_ROOT_DIR:/root/mlcommons \
+--bind /scratch/gpfs/hm2595/mlperf/mlperf-inference/loadgen:/scratch/gpfs/hm2595/mlperf/mlperf-inference/loadgen \
+--env DATA_DIR=/root/data \
+--env MODEL_DIR=/root/model \
+--env DLRM_DIR=/root/dlrm \
+dlrm-cpu-localdocker.sif 

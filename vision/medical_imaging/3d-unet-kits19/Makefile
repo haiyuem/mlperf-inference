@@ -172,12 +172,14 @@ convert_tensorflow_model: convert_onnx_model
 	fi
 
 .PHONY: build_docker
-build_docker:
-	@echo "Building docker image..."
-	@docker pull nvcr.io/nvidia/pytorch:20.12-py3
-	@docker build --build-arg GID=$(GROUPID) --build-arg UID=$(UID) --build-arg GROUP=$(GROUPNAME) --build-arg USER=$(UNAME) \
-	  --build-arg http_proxy=$(HTTP_PROXY) --build-arg https_proxy=$(HTTPS_PROXY) --build-arg HTTPS_PROXY=$(HTTPS_PROXY) --build-arg HTTP_PROXY=$(HTTP_PROXY) \
-    --build-arg BASE_IMAGE=nvcr.io/nvidia/pytorch:20.12-py3 -t mlperf-inference-3d-unet-kits19 -f Dockerfile .
+# build_docker:
+# 	singularity build /scratch/gpfs/hm2595/mlperf/mlperf-inference-3d-unet-kits19.sif Singularity.def
+
+# @echo "Building docker image..."
+# @docker pull nvcr.io/nvidia/pytorch:20.12-py3
+# @docker build --build-arg GID=$(GROUPID) --build-arg UID=$(UID) --build-arg GROUP=$(GROUPNAME) --build-arg USER=$(UNAME) \
+#   --build-arg http_proxy=$(HTTP_PROXY) --build-arg https_proxy=$(HTTPS_PROXY) --build-arg HTTPS_PROXY=$(HTTPS_PROXY) --build-arg HTTP_PROXY=$(HTTP_PROXY) \
+# --build-arg BASE_IMAGE=nvcr.io/nvidia/pytorch:20.12-py3 -t mlperf-inference-3d-unet-kits19 -f Dockerfile .
 
 # root password is root, $user password is $user
 .PHONY: launch_docker
@@ -185,13 +187,17 @@ launch_docker: check_download_data_dir
 	@mkdir -p $(PREPROCESSED_DATA_DIR)
 	@mkdir -p $(POSTPROCESSED_DATA_DIR)
 	@echo "Launching docker container..."
-	@$(DOCKER_RUN_CMD) --rm -it -w $(CONTAINER_VOL) -v $(HOST_VOL):$(CONTAINER_VOL) -v ${HOME}:/mnt/${HOME} \
-		-v $(DOWNLOAD_DATA_DIR):/downloaded_data_dir \
-		--shm-size=4g --ulimit memlock=-1 --ulimit stack=67108864 \
-		-v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro \
-		--security-opt apparmor=unconfined --security-opt seccomp=unconfined \
-		--name mlperf-inference-3d-unet-kits19-$(UNAME) -h mlperf-inference-3d-unet-kits19-$(UNAME) --add-host mlperf-inference-3d-unet-kits19-$(UNAME):127.0.0.1 \
-		--user $(UID):$(GROUPID) --net host --device /dev/fuse --cap-add SYS_ADMIN $(DOCKER_ARGS) mlperf-inference-3d-unet-kits19
+# @$(DOCKER_RUN_CMD) --rm -it -w $(CONTAINER_VOL) -v $(HOST_VOL):$(CONTAINER_VOL) -v ${HOME}:/mnt/${HOME} \
+# 	-v $(DOWNLOAD_DATA_DIR):/downloaded_data_dir \
+# 	--shm-size=4g --ulimit memlock=-1 --ulimit stack=67108864 \
+# 	-v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro \
+# 	--security-opt apparmor=unconfined --security-opt seccomp=unconfined \
+# 	--name mlperf-inference-3d-unet-kits19-$(UNAME) -h mlperf-inference-3d-unet-kits19-$(UNAME) --add-host mlperf-inference-3d-unet-kits19-$(UNAME):127.0.0.1 \
+# 	--user $(UID):$(GROUPID) --net host --device /dev/fuse --cap-add SYS_ADMIN $(DOCKER_ARGS) mlperf-inference-3d-unet-kits19
+
+	singularity exec --bind $(HOST_VOL):$(CONTAINER_VOL),${HOME}:/mnt/${HOME},$(DOWNLOAD_DATA_DIR):/downloaded_data_dir,/etc/localtime:/etc/localtime \
+	mlperf-inference-3d-unet-kits19.sif /bin/bash
+
 
 .PHONY: preprocess_data
 preprocess_data: create_directories
@@ -225,7 +231,8 @@ mkdir_postprocessed_data:
 
 .PHONY: run_pytorch_performance
 run_pytorch_performance:
-	@python3 run.py --backend=pytorch --model=$(PYTORCH_MODEL)
+# /home/hm2595/pintool/pin-3.22-98547-g7a303a835-gcc-linux/pin -t /home/hm2595/pintool/pin-3.22-98547-g7a303a835-gcc-linux/source/tools/readMemVal/obj-intel64/write_load_addr_val.so -o /scratch/gpfs/hm2595/mlperf/output/3d-unet-kits19/csv -i 10000000 -j 90000000 -- python3 run.py --backend=pytorch --model=$(PYTORCH_MODEL)
+	/home/hm2595/pintool/pin-3.22-98547-g7a303a835-gcc-linux/pin -t /home/hm2595/pintool/pin-3.22-98547-g7a303a835-gcc-linux/source/tools/readMemVal/obj-intel64/proccount.so -o /scratch/gpfs/hm2595/mlperf/output/3d-unet-kits19/rtnlist.out -- python3 run.py --backend=pytorch --model=$(PYTORCH_MODEL)
 
 .PHONY: run_pytorch_accuracy
 run_pytorch_accuracy: mkdir_postprocessed_data

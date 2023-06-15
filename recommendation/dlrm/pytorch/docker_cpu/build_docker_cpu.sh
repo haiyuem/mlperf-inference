@@ -1,4 +1,4 @@
 #!/bin/bash
 
-printf "\nBuilding docker image"
-docker build -t dlrm-cpu ./
+printf "\nBuilding Singularity image"
+singularity build dlrm-cpu.sif Singularity.def
