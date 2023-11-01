@@ -1,3 +1,9 @@
+# README added by Haiyue Ma
+The modified code are in "developer" branch, forked from branch r2.1 
+The changes in this repository are in "vision" (2 benchmarks: image classify, medical image analysis) and "recommendation" (1 benchmark: dlrm). These changes are tailored to [value locality detector study](https://github.com/haiyuem/value_locality_detector). Please run with the script from value locality detector repository.
+
+Below are the original contents of the README file. 
+
 # MLPerf™ Inference Benchmark Suite
 MLPerf Inference is a benchmark suite for measuring how fast systems can run models in a variety of deployment scenarios. 
 

@@ -1,3 +1,28 @@
+# README added by Haiyue Ma
+
+This repository's code has been tailored to the value locality detector study.
+
+First we need to set up the container environment:
+`./build_docker.sh`
+
+Note: In order to convert this Docker container to a Singularity container which is the only container accepted for some clusters, you need to build the docker on a local machine with root access. After that, do the following steps:
+1. Save docker image to a .tar file: `docker save <docker_id> -o <image_name>.tar`
+<docker_id> can be obtained by running `docker images` and look for the one just created. e.g. `docker save 8801713aa347 -o mlperf-infer-imgclassify-cpu_dockerimage.tar`
+2. Copy `<image_name>.tar` to remote cluster
+3. run `./build_singularity.sh` and build singularity container from saved docker image.
+
+Next, we need to get the pretrained model and the dataset. Example:
+Download the model: `wget -q https://zenodo.org/record/3157894/files/mobilenet_v1_1.0_224.onnx` (should be mobilenet_v1_1.0_224.onnx at working dir)
+Download the dataset: `tools/make_fake_imagenet.sh` (should be fake_imagenet folder at working dir)
+
+Now, we're ready to run the workloads in the container.
+Example run command: `./run_and_time.sh onnxruntime mobilenet cpu`
+`run_and_time.sh` sources `run_common.sh` and calls `run_helper.sh`. `run_helper.sh` requires that `$RUN_COMMAND` be set. For value locality detector purposes, `$RUN_COMMAND` is set in the run script in the workflow folder to be different than default for profiling. 
+
+Before running, please set the environment variables in `run_and_time.sh`, especially `$OUTPUT_DIR`.
+
+Below are the original README from mlperf benchmarks. 
+
 # MLPerf Inference Benchmarks for Image Classification and Object Detection Tasks
 
 This is the reference implementation for MLPerf Inference benchmarks.
