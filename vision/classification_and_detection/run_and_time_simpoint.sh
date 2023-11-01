@@ -30,8 +30,13 @@ source ./run_common.sh
 if [ -z "$global_output_dir" ]; then
     global_output_dir="$PWD/output"
 fi
-OUTPUT_DIR=$global_output_dir/mlperf/imgclassify/$name/0_run_program
+OUTPUT_DIR=$global_output_dir/mlperf/imgclassify/$name/1_simpoint
 OUTPUT_DIR_mlperfresults=${OUTPUT_DIR}/mlperf_results
+# This is to separate simpoint and program outputs
+OUTPUT_DIR_SIMPOINT=${OUTPUT_DIR}/simpoint
+if [ ! -d $OUTPUT_DIR_SIMPOINT ]; then
+    mkdir -p $OUTPUT_DIR_SIMPOINT
+fi
 if [ ! -d $OUTPUT_DIR_mlperfresults ]; then
     mkdir -p $OUTPUT_DIR_mlperfresults
 fi
@@ -45,6 +50,7 @@ opts="--mlperf_conf $PWD/mlperf.conf --user_conf $PWD/user.conf --profile $profi
 #     -v $OUTPUT_DIR:/output -v /proc:/host_proc \
 #     -t $image:latest /mlperf/run_helper.sh 2>&1 | tee $OUTPUT_DIR/output.txt
 
-singularity exec --env opts="$opts" --bind $PIN_ROOT:/pinroot,$DATA_DIR:$DATA_DIR,$MODEL_DIR:$MODEL_DIR,$SRC_DIR:/mlperf,$OUTPUT_DIR:/output,/proc:/host_proc \
+#/usr/bin/time was added to use time for pinpoints.py. /usr/bin was mapped differently in singularity and the container version didn't have time. 
+singularity exec --env opts="$opts" --bind $PIN_ROOT:/pinroot,$DATA_DIR:$DATA_DIR,$MODEL_DIR:$MODEL_DIR,$SRC_DIR:/mlperf,$OUTPUT_DIR:/output,$OUTPUT_DIR_SIMPOINT:/output_simpoint,/proc:/host_proc,/usr/bin/time:/usr/bin/time \
 $SRC_DIR/${image}.sif \
-/mlperf/run_helper.sh 2>&1
+/mlperf/run_helper_simpoint.sh 2>&1

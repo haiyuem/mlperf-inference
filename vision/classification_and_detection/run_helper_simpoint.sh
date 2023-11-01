@@ -8,10 +8,10 @@ common_opt=""
 start_fmt=$(date +%Y-%m-%d\ %r)
 echo "STARTING RUN AT $start_fmt"
 
-if [ -z "$RUN_COMMAND" ]; then
-    RUN_COMMAND="python /mlperf/python/main.py"
-fi
-$RUN_COMMAND $opts
+# cd /mlperf
+# simpoint must be run from output dir
+cd /output_simpoint
+$RUN_COMMAND 
 
 end_fmt=$(date +%Y-%m-%d\ %r)
 echo "ENDING RUN AT $end_fmt"

@@ -30,7 +30,7 @@ source ./run_common.sh
 if [ -z "$global_output_dir" ]; then
     global_output_dir="$PWD/output"
 fi
-OUTPUT_DIR=$global_output_dir/mlperf/imgclassify/$name/0_run_program
+OUTPUT_DIR=$global_output_dir/mlperf/imgclassify/$name/2_gen_trace
 OUTPUT_DIR_mlperfresults=${OUTPUT_DIR}/mlperf_results
 if [ ! -d $OUTPUT_DIR_mlperfresults ]; then
     mkdir -p $OUTPUT_DIR_mlperfresults
